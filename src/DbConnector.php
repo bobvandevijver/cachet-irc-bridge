@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS incidents (
       latest_human_status TEXT,
       permalink TEXT,
       created_at TEXT,
-      updated_at TEXT
+      updated_at TEXT,
+      data TEXT
 ) WITHOUT ROWID 
 SQL
     );
@@ -31,14 +32,14 @@ SQL
 
   public function getIncident(int $id): ?Incident
   {
-    $stmt = $this->db->prepare('SELECT * FROM incidents WHERE id = :id');
+    $stmt = $this->db->prepare('SELECT data FROM incidents WHERE id = :id');
     $stmt->execute([':id' => $id]);
 
     if (!$data = $stmt->fetch(PDO::FETCH_ASSOC)) {
       return NULL;
     }
 
-    return new Incident($data);
+    return new Incident(json_decode($data['data'], true));
   }
 
   public function storeIncident(Incident $incident): void
@@ -50,14 +51,16 @@ INSERT INTO incidents (id,
                        latest_human_status,
                        permalink, 
                        created_at,
-                       updated_at) 
+                       updated_at,
+                       data)
 VALUES (:id,
         :name,
         :latest_status,
         :latest_human_status,
         :permalink,
         :created_at,
-        :updated_at)
+        :updated_at,
+        :data)
 SQL
     );
 
@@ -75,7 +78,8 @@ SET name = :name,
     latest_human_status = :latest_human_status,
     permalink = :permalink, 
     created_at = :created_at, 
-    updated_at = :updated_at
+    updated_at = :updated_at,
+    data = :data
 WHERE id = :id
 SQL
     );
@@ -91,7 +95,8 @@ SQL
         'latest_human_status',
         'permalink',
         'created_at',
-        'updated_at'];
+        'updated_at',
+    ];
     $result = [];
     foreach ($incident->getData() as $key => $value) {
       if (!in_array($key, $fields)) {
@@ -100,6 +105,8 @@ SQL
 
       $result[':' . $key] = $value;
     }
+
+    $result[':data'] = json_encode($incident->getData());
 
     return $result;
   }
