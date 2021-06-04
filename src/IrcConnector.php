@@ -18,18 +18,18 @@ class IrcConnector
 
   public function newIncident(Incident $incident): void
   {
-    $this->sendIncident($incident);
+    $this->sendIncident('nieuw', $incident);
   }
 
   public function updateIncident(Incident $incident): void
   {
-    $this->sendIncident($incident);
+    $this->sendIncident('update', $incident);
   }
 
-  private function sendIncident(Incident $incident): void
+  private function sendIncident(string $type, Incident $incident): void
   {
     $this->send(sprintf('%s %s: %s [ %s ]',
-        IrkerUtils::colorize('[TweakStatus]', IrkerUtils::COLOR_ORANGE),
+        IrkerUtils::colorize(sprintf('[TweakStatus - %s]', ucfirst($type)), IrkerUtils::COLOR_ORANGE),
         $this->colorHumanState($incident),
         $incident->getName(),
         IrkerUtils::colorize($incident->getPermalink(), IrkerUtils::COLOR_BLUE)
