@@ -4,8 +4,55 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff58a539ec2292807f351e5882d2d725",
+    "content-hash": "819ade4df58a389e3bd11d45dd6e00f5",
     "packages": [
+        {
+            "name": "bobv/irker-utils",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bobvandevijver/irker-utils.git",
+                "reference": "b4f09b9d3136ef7f2b8d5165d295aa88f015a075"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bobvandevijver/irker-utils/zipball/b4f09b9d3136ef7f2b8d5165d295aa88f015a075",
+                "reference": "b4f09b9d3136ef7f2b8d5165d295aa88f015a075",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-sockets": "*",
+                "php": ">=7.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BobV\\IrkerUtils\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bob van de Vijver",
+                    "email": "bobvandevijver@hotmail.com"
+                }
+            ],
+            "description": "Small utility to connect with an irker service.",
+            "homepage": "https://github.com/bobvandevijver/irker-utils",
+            "keywords": [
+                "irc",
+                "irker"
+            ],
+            "support": {
+                "issues": "https://github.com/bobvandevijver/irker-utils/issues",
+                "source": "https://github.com/bobvandevijver/irker-utils/tree/1.0.0"
+            },
+            "time": "2021-06-04T07:02:26+00:00"
+        },
         {
             "name": "psr/container",
             "version": "1.1.1",

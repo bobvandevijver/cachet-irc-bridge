@@ -3,17 +3,21 @@
 namespace App;
 
 use App\Model\Incident;
+use BobV\IrkerUtils\Colorize;
+use BobV\IrkerUtils\Connector;
 
 class IrcConnector
 {
-  /**
-   * @var bool
-   */
-  private $silent;
+  /** @var Connector|null */
+  private $connector;
 
   public function __construct(bool $silent)
   {
-    $this->silent = $silent;
+    if ($silent) {
+      return;
+    }
+
+    $this->connector = new Connector($_ENV['IRKER_SERVER'], $_ENV['IRKER_PORT']);
   }
 
   public function newIncident(Incident $incident): void
@@ -29,48 +33,39 @@ class IrcConnector
   private function sendIncident(string $type, Incident $incident): void
   {
     $this->send(sprintf('%s %s: %s [ %s ]',
-        IrkerUtils::colorize(sprintf('[TweakStatus - %s]', ucfirst($type)), IrkerUtils::COLOR_ORANGE),
+        Colorize::colorize(sprintf('[TweakStatus - %s]', ucfirst($type)), Colorize::COLOR_ORANGE),
         $this->colorHumanState($incident),
         $incident->getName(),
-        IrkerUtils::colorize($incident->getPermalink(), IrkerUtils::COLOR_BLUE)
+        Colorize::colorize($incident->getPermalink(), Colorize::COLOR_BLUE)
     ));
   }
 
   private function colorHumanState(Incident $incident): string
   {
-    $color = IrkerUtils::COLOR_YELLOW;
+    $color = Colorize::COLOR_YELLOW;
     switch ($incident->getLatestStatus()) {
       case 1: // In onderzoek
         break;
       case 2: // Geïdentificeerd
-        $color = IrkerUtils::COLOR_DARK_RED;
+        $color = Colorize::COLOR_DARK_RED;
         break;
       case 3: // Aan het opvolgen
-        $color = IrkerUtils::COLOR_GREEN;
+        $color = Colorize::COLOR_GREEN;
         break;
       case 4: // Opgelost
-        $color = IrkerUtils::COLOR_LIGHT_GREEN;
+        $color = Colorize::COLOR_LIGHT_GREEN;
         break;
     }
 
-    return IrkerUtils::colorize($incident->getLatestHumanStatus(), $color);
+    return Colorize::colorize($incident->getLatestHumanStatus(), $color);
   }
 
   private function send(string $message): void
   {
-
-    if ($this->silent) {
+    if (!$this->connector) {
       return;
     }
 
-    $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    socket_connect($socket, $_ENV['IRKER_SERVER'], $_ENV['IRKER_PORT']);
-    // We cannot use JMS serializer here, as the JSON needs to be as clear as possible
-    $data = json_encode([
-        'to'      => $_ENV['IRC_ENDPOINT'],
-        'privmsg' => $message,
-    ]);
-    socket_send($socket, $data, strlen($data), MSG_EOF);
-    socket_close($socket);
+    $this->connector->send($_ENV['IRC_ENDPOINT'], $message);
   }
 }
