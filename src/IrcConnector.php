@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Model\Incident;
+use App\Model\Schedule;
 use BobV\IrkerUtils\Colorize;
 use BobV\IrkerUtils\Connector;
 
@@ -25,9 +26,19 @@ class IrcConnector
     $this->sendIncident('nieuw', $incident);
   }
 
+  public function newSchedule(Schedule $schedule): void
+  {
+    $this->sendSchedule('nieuw', $schedule);
+  }
+
   public function updateIncident(Incident $incident): void
   {
     $this->sendIncident('update', $incident);
+  }
+
+  public function updateSchedule(Schedule $schedule): void
+  {
+    $this->sendSchedule('update', $schedule);
   }
 
   private function sendIncident(string $type, Incident $incident): void
@@ -37,6 +48,16 @@ class IrcConnector
         $this->colorizedIncidentState($incident),
         $incident->getName(),
         Colorize::colorize($incident->getPermalink(), Colorize::COLOR_BLUE)
+    ));
+  }
+
+  private function sendSchedule(string $type, Schedule $schedule): void
+  {
+    $this->send(sprintf('%s %s: %s [ %s ]',
+        Colorize::colorize(sprintf('[TweakOnderhoud - %s]', ucfirst($type)), Colorize::COLOR_ORANGE),
+        $this->colorizedScheduleState($schedule),
+        $schedule->getName(),
+        Colorize::colorize($_ENV['FRONTEND_HOST'] . '#scheduled-' . $schedule->getId(), Colorize::COLOR_BLUE)
     ));
   }
 
@@ -58,6 +79,23 @@ class IrcConnector
     }
 
     return Colorize::colorize($incident->getLatestHumanStatus(), $color);
+  }
+
+  private function colorizedScheduleState(Schedule $schedule): string
+  {
+    $color = Colorize::COLOR_YELLOW;
+    switch ($schedule->getStatus()) {
+      case 0: // Upcoming
+        break;
+      case 1: // In progress
+        $color = Colorize::COLOR_DARK_RED;
+        break;
+      case 2: // Complete
+        $color = Colorize::COLOR_LIGHT_GREEN;
+        break;
+    }
+
+    return Colorize::colorize($schedule->getHumanStatus(), $color);
   }
 
   private function send(string $message): void

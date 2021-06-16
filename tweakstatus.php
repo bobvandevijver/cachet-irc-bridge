@@ -5,6 +5,7 @@ require __DIR__ . '/vendor/autoload.php';
 use App\DbConnector;
 use App\IrcConnector;
 use App\Parser\IncidentParser;
+use App\Parser\ScheduleParser;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -36,6 +37,11 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
 
       // Retrieve incidents
       if (0 !== $result = (new IncidentParser($console, $db, $irc, $httpClient, $accessor))()) {
+        return $result;
+      }
+
+      // Retrieve schedules
+      if (0 !== $result = (new ScheduleParser($console, $db, $irc, $httpClient, $accessor))()) {
         return $result;
       }
 

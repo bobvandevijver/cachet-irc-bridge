@@ -47,7 +47,7 @@ abstract class AbstractSharedParser
    */
   public function __invoke(): int
   {
-    $response = $this->httpClient->request('GET', $this->getEndpoint());
+    $response = $this->httpClient->request('GET', $_ENV['FRONTEND_HOST'] . $this->getEndpoint());
     if ($response->getStatusCode() !== 200) {
       $this->console->error([
           'HTTP request failed for:',

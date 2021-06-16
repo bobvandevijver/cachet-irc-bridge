@@ -4,6 +4,7 @@ namespace App;
 
 use App\Model\AbstractSharedModel;
 use App\Model\Incident;
+use App\Model\Schedule;
 use PDO;
 use RuntimeException;
 
@@ -29,6 +30,17 @@ CREATE TABLE IF NOT EXISTS incidents (
 ) WITHOUT ROWID
 SQL
     );
+    $this->db->query(<<<SQL
+CREATE TABLE IF NOT EXISTS schedules (
+      id INTEGER PRIMARY KEY NOT NULL,
+      name TEXT,
+      human_status TEXT,
+      created_at TEXT,
+      updated_at TEXT,
+      data TEXT
+) WITHOUT ROWID
+SQL
+    );
   }
 
   public function getIncident(int $id): ?Incident
@@ -41,6 +53,18 @@ SQL
     }
 
     return new Incident(json_decode($data['data'], true));
+  }
+
+  public function getSchedule(int $id): ?Schedule
+  {
+    $stmt = $this->db->prepare('SELECT data FROM schedules WHERE id = :id');
+    $stmt->execute([':id' => $id]);
+
+    if (!$data = $stmt->fetch(PDO::FETCH_ASSOC)) {
+      return NULL;
+    }
+
+    return new Schedule(json_decode($data['data'], true));
   }
 
   public function storeIncident(Incident $incident): void
@@ -70,6 +94,29 @@ SQL
     }
   }
 
+  public function storeSchedule(Schedule $schedule): void
+  {
+    $stmt = $this->db->prepare(<<<SQL
+INSERT INTO schedules (id,
+                       name,
+                       human_status,
+                       created_at,
+                       updated_at,
+                       data)
+VALUES (:id,
+        :name,
+        :human_status,
+        :created_at,
+        :updated_at,
+        :data)
+SQL
+    );
+
+    if (!$stmt->execute($this->scheduleToParameters($schedule))) {
+      throw new RuntimeException(json_encode($stmt->errorInfo()));
+    }
+  }
+
   public function updateIncident(Incident $incident): void
   {
     $stmt = $this->db->prepare(<<<SQL
@@ -87,6 +134,21 @@ SQL
     $stmt->execute($this->incidentToParameters($incident));
   }
 
+  public function updateSchedule(Schedule $schedule): void
+  {
+    $stmt = $this->db->prepare(<<<SQL
+UPDATE schedules
+SET name = :name,
+    human_status = :human_status,
+    created_at = :created_at,
+    updated_at = :updated_at,
+    data = :data
+WHERE id = :id
+SQL
+    );
+    $stmt->execute($this->scheduleToParameters($schedule));
+  }
+
   private function incidentToParameters(Incident $incident): array
   {
     return $this->sharedModelToParameters($incident, [
@@ -95,6 +157,17 @@ SQL
         'latest_status',
         'latest_human_status',
         'permalink',
+        'created_at',
+        'updated_at',
+    ]);
+  }
+
+  private function scheduleToParameters(Schedule $schedule): array
+  {
+    return $this->sharedModelToParameters($schedule, [
+        'id',
+        'name',
+        'human_status',
         'created_at',
         'updated_at',
     ]);
