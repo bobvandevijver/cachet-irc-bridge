@@ -4,7 +4,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use App\DbConnector;
 use App\IrcConnector;
-use App\Model\Incident;
+use App\Parser\IncidentParser;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -31,43 +31,12 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
       $db  = new DbConnector($varDir);
       $irc = new IrcConnector($input->getOption('no-irc') === true);
 
-      // Load status information
+      // Create HTTP client
       $httpClient = HttpClient::create();
-      $response   = $httpClient->request('GET', $_ENV['API_ENDPOINT']);
-      if ($response->getStatusCode() !== 200) {
-        $console->error([
-            'HTTP request failed for:',
-            $_ENV['API_ENDPOINT'],
-            'The error message was:',
-            json_encode($response->getInfo()),
-        ]);
 
-        return 1;
-      }
-
-      foreach ($accessor->getValue($response->toArray(), '[data]') as $apiItem) {
-        $apiIncident = new Incident($apiItem);
-        $dbIncident  = $db->getIncident($apiIncident->getId());
-
-        if (!$dbIncident) {
-          $console->text(sprintf('New incident! [%s] %s',
-              $apiIncident->getLatestHumanStatus(), $apiIncident->getName()));
-          $irc->newIncident($apiIncident);
-
-          $db->storeIncident($apiIncident);
-        } else {
-          /** @noinspection PhpNonStrictObjectEqualityInspection */
-          if ($dbIncident->getUpdatedAt() == $apiIncident->getUpdatedAt()) {
-            // No updates
-            continue;
-          }
-
-          $console->text(sprintf('Updated incident! [%s] %s',
-              $apiIncident->getLatestHumanStatus(), $apiIncident->getName()));
-          $irc->updateIncident($apiIncident);
-
-          $db->updateIncident($apiIncident);
-        }
+      // Retrieve incidents
+      if (0 !== $result = (new IncidentParser($console, $db, $irc, $httpClient, $accessor))()) {
+        return $result;
       }
 
       $console->success('Done!');

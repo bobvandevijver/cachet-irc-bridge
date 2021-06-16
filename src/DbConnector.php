@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Model\AbstractSharedModel;
 use App\Model\Incident;
 use PDO;
 use RuntimeException;
@@ -25,7 +26,7 @@ CREATE TABLE IF NOT EXISTS incidents (
       created_at TEXT,
       updated_at TEXT,
       data TEXT
-) WITHOUT ROWID 
+) WITHOUT ROWID
 SQL
     );
   }
@@ -45,8 +46,8 @@ SQL
   public function storeIncident(Incident $incident): void
   {
     $stmt = $this->db->prepare(<<<SQL
-INSERT INTO incidents (id, 
-                       name, 
+INSERT INTO incidents (id,
+                       name,
                        latest_status,
                        latest_human_status,
                        permalink, 
@@ -72,12 +73,12 @@ SQL
   public function updateIncident(Incident $incident): void
   {
     $stmt = $this->db->prepare(<<<SQL
-UPDATE incidents 
-SET name = :name, 
+UPDATE incidents
+SET name = :name,
     latest_status = :latest_status,
     latest_human_status = :latest_human_status,
     permalink = :permalink, 
-    created_at = :created_at, 
+    created_at = :created_at,
     updated_at = :updated_at,
     data = :data
 WHERE id = :id
@@ -88,7 +89,7 @@ SQL
 
   private function incidentToParameters(Incident $incident): array
   {
-    $fields = [
+    return $this->sharedModelToParameters($incident, [
         'id',
         'name',
         'latest_status',
@@ -96,9 +97,13 @@ SQL
         'permalink',
         'created_at',
         'updated_at',
-    ];
+    ]);
+  }
+
+  private function sharedModelToParameters(AbstractSharedModel $sharedModel, array $fields): array
+  {
     $result = [];
-    foreach ($incident->getData() as $key => $value) {
+    foreach ($sharedModel->getData() as $key => $value) {
       if (!in_array($key, $fields)) {
         continue;
       }
@@ -106,7 +111,7 @@ SQL
       $result[':' . $key] = $value;
     }
 
-    $result[':data'] = json_encode($incident->getData());
+    $result[':data'] = json_encode($sharedModel->getData());
 
     return $result;
   }

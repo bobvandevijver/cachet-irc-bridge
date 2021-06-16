@@ -34,13 +34,13 @@ class IrcConnector
   {
     $this->send(sprintf('%s %s: %s [ %s ]',
         Colorize::colorize(sprintf('[TweakStatus - %s]', ucfirst($type)), Colorize::COLOR_ORANGE),
-        $this->colorHumanState($incident),
+        $this->colorizedIncidentState($incident),
         $incident->getName(),
         Colorize::colorize($incident->getPermalink(), Colorize::COLOR_BLUE)
     ));
   }
 
-  private function colorHumanState(Incident $incident): string
+  private function colorizedIncidentState(Incident $incident): string
   {
     $color = Colorize::COLOR_YELLOW;
     switch ($incident->getLatestStatus()) {
