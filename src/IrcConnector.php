@@ -57,7 +57,7 @@ class IrcConnector
         Colorize::colorize(sprintf('[TweakOnderhoud - %s]', ucfirst($type)), Colorize::COLOR_ORANGE),
         $this->colorizedScheduleState($schedule),
         $schedule->getName(),
-        Colorize::colorize($_ENV['FRONTEND_HOST'] . '#scheduled-' . $schedule->getId(), Colorize::COLOR_BLUE)
+        Colorize::colorize($_ENV['FRONTEND_HOST'] . 'schedules/' . $schedule->getId(), Colorize::COLOR_BLUE)
     ));
   }
 
