@@ -44,7 +44,7 @@ class IrcConnector
   private function sendIncident(string $type, Incident $incident): void
   {
     $this->send(sprintf('%s %s: %s [ %s ]',
-        Colorize::colorize(sprintf('[TweakStatus - %s]', ucfirst($type)), Colorize::COLOR_ORANGE),
+        Colorize::colorize(sprintf('[%s - %s]', $_ENV['STATUS_PREFIX'] ,ucfirst($type)), Colorize::COLOR_ORANGE),
         $this->colorizedIncidentState($incident),
         $incident->getName(),
         Colorize::colorize($incident->getPermalink(), Colorize::COLOR_BLUE)
@@ -54,7 +54,7 @@ class IrcConnector
   private function sendSchedule(string $type, Schedule $schedule): void
   {
     $this->send(sprintf('%s %s: %s [ %s ]',
-        Colorize::colorize(sprintf('[TweakOnderhoud - %s]', ucfirst($type)), Colorize::COLOR_ORANGE),
+        Colorize::colorize(sprintf('[%s - %s]', $_ENV['SCHEDULE_PREFIX'] , ucfirst($type)), Colorize::COLOR_ORANGE),
         $this->colorizedScheduleState($schedule),
         $schedule->getName(),
         Colorize::colorize($_ENV['FRONTEND_HOST'] . 'schedules/' . $schedule->getId(), Colorize::COLOR_BLUE)
