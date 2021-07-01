@@ -33,7 +33,9 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
       $irc = new IrcConnector($input->getOption('no-irc') === true);
 
       // Create HTTP client
-      $httpClient = HttpClient::create();
+      $httpClient = HttpClient::create([
+          'timeout' => $_ENV['HTTP_TIMEOUT']
+      ]);
 
       // Retrieve incidents
       if (0 !== $result = (new IncidentParser($console, $db, $irc, $httpClient, $accessor))()) {
