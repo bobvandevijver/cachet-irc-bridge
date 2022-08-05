@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Model\AbstractSharedModel;
+use App\Model\Component;
 use App\Model\Incident;
 use App\Model\Schedule;
 use PDO;
@@ -17,6 +18,18 @@ class DbConnector
     $this->db = new PDO(sprintf('sqlite:%s%s%s', $dbDir, DIRECTORY_SEPARATOR, $_ENV['DB_FILE']));
 
     // Create tables if not yet created
+    $this->db->query(<<<SQL
+CREATE TABLE IF NOT EXISTS components (
+      id INTEGER PRIMARY KEY NOT NULL,
+      name TEXT,
+      status INTEGER,
+      status_name TEXT,
+      created_at TEXT,
+      updated_at TEXT,
+      data TEXT
+) WITHOUT ROWID
+SQL
+    );
     $this->db->query(<<<SQL
 CREATE TABLE IF NOT EXISTS incidents (
       id INTEGER PRIMARY KEY NOT NULL,
@@ -43,6 +56,18 @@ SQL
     );
   }
 
+  public function getComponent(int $id): ?Component
+  {
+    $stmt = $this->db->prepare('SELECT data FROM components WHERE id = :id');
+    $stmt->execute([':id' => $id]);
+
+    if (!$data = $stmt->fetch(PDO::FETCH_ASSOC)) {
+      return NULL;
+    }
+
+    return new Component(json_decode($data['data'], true));
+  }
+
   public function getIncident(int $id): ?Incident
   {
     $stmt = $this->db->prepare('SELECT data FROM incidents WHERE id = :id');
@@ -65,6 +90,31 @@ SQL
     }
 
     return new Schedule(json_decode($data['data'], true));
+  }
+
+  public function storeComponent(Component $component): void
+  {
+    $stmt = $this->db->prepare(<<<SQL
+INSERT INTO components (id,
+                        name,
+                        status,
+                        status_name,
+                        created_at,
+                        updated_at,
+                        data)
+VALUES (:id,
+        :name,
+        :status,
+        :status_name,
+        :created_at,
+        :updated_at,
+        :data)
+SQL
+    );
+
+    if (!$stmt->execute($this->componentToParameters($component))) {
+      throw new RuntimeException(json_encode($stmt->errorInfo()));
+    }
   }
 
   public function storeIncident(Incident $incident): void
@@ -117,6 +167,21 @@ SQL
     }
   }
 
+  public function updateComponent(Component $component): void {
+    $stmt = $this->db->prepare(<<<SQL
+UPDATE components
+SET name = :name,
+    status = :status,
+    status_name = :status_name,
+    created_at = :created_at,
+    updated_at = :updated_at,
+    data = :data
+WHERE id = :id
+SQL
+    );
+    $stmt->execute($this->componentToParameters($component));
+  }
+
   public function updateIncident(Incident $incident): void
   {
     $stmt = $this->db->prepare(<<<SQL
@@ -147,6 +212,18 @@ WHERE id = :id
 SQL
     );
     $stmt->execute($this->scheduleToParameters($schedule));
+  }
+
+  private function componentToParameters(Component $component): array
+  {
+    return $this->sharedModelToParameters($component, [
+        'id',
+        'name',
+        'status',
+        'status_name',
+        'created_at',
+        'updated_at',
+    ]);
   }
 
   private function incidentToParameters(Incident $incident): array

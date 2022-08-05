@@ -4,6 +4,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use App\DbConnector;
 use App\IrcConnector;
+use App\Parser\ComponentParser;
 use App\Parser\IncidentParser;
 use App\Parser\ScheduleParser;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,6 +37,11 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
       $httpClient = HttpClient::create([
           'timeout' => $_ENV['HTTP_TIMEOUT']
       ]);
+
+      // Retrieve components
+      if (0 !== $result = (new ComponentParser($console, $db, $irc, $httpClient, $accessor))()) {
+        return $result;
+      }
 
       // Retrieve incidents
       if (0 !== $result = (new IncidentParser($console, $db, $irc, $httpClient, $accessor))()) {
