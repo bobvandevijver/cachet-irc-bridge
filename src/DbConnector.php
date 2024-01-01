@@ -9,9 +9,9 @@ use App\Model\Schedule;
 use PDO;
 use RuntimeException;
 
-class DbConnector
+readonly class DbConnector
 {
-  private $db;
+  private PDO $db;
 
   public function __construct(string $dbDir)
   {

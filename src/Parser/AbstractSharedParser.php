@@ -16,26 +16,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class AbstractSharedParser
 {
-  /** @var PropertyAccessorInterface */
-  protected $accessor;
-  /** @var SymfonyStyle */
-  protected $console;
-  /** @var DbConnector */
-  protected $db;
-  /** @var HttpClientInterface */
-  protected $httpClient;
-  /**  @var IrcConnector */
-  protected $irc;
-
   public function __construct(
-      SymfonyStyle $console, DbConnector $db, IrcConnector $irc, HttpClientInterface $httpClient,
-      PropertyAccessorInterface $accessor)
+      protected SymfonyStyle $console,
+      protected DbConnector $db,
+      protected IrcConnector $irc,
+      protected HttpClientInterface $httpClient,
+      protected PropertyAccessorInterface $accessor)
   {
-    $this->console    = $console;
-    $this->db         = $db;
-    $this->irc        = $irc;
-    $this->accessor   = $accessor;
-    $this->httpClient = $httpClient;
   }
 
   /**

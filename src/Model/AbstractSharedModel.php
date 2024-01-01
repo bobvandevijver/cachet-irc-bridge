@@ -7,19 +7,11 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 abstract class AbstractSharedModel
 {
-  /** @var PropertyAccessor */
-  protected static $accessor;
+  protected static PropertyAccessor $accessor;
 
-  /** @var array */
-  protected $data;
-
-  public function __construct(array $data)
+  public function __construct(protected readonly array $data)
   {
-    if (!static::$accessor) {
-      static::$accessor = new PropertyAccessor();
-    }
-
-    $this->data = $data;
+    static::$accessor ??= new PropertyAccessor();
   }
 
   public function getData(): array

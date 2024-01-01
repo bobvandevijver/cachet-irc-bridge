@@ -2,28 +2,21 @@
   "type": "project",
   "license": "Apache-2.0",
   "require": {
-    "php": "^7.3",
+    "php": "^8.2",
     "ext-json": "*",
     "ext-pdo": "*",
     "ext-sockets": "*",
     "bobv/irker-utils": "^1.0",
-    "symfony/console": "^5.3",
-    "symfony/dotenv": "^5.3",
-    "symfony/http-client": "^5.3",
-    "symfony/property-access": "^5.3"
+    "symfony/console": "^6.4",
+    "symfony/dotenv": "^6.4",
+    "symfony/http-client": "^6.4",
+    "symfony/property-access": "^6.4"
   },
   "config": {
     "preferred-install": {
       "*": "dist"
     },
     "sort-packages": true
-  },
-  "replace": {
-    "symfony/polyfill-php73": "*",
-    "symfony/polyfill-php72": "*",
-    "symfony/polyfill-php71": "*",
-    "symfony/polyfill-php70": "*",
-    "symfony/polyfill-php56": "*"
   },
   "conflict": {
     "symfony/symfony": "*"
@@ -36,7 +29,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": false,
-      "require": "5.3.*"
+      "require": "6.4.*"
     }
   },
   "scripts": {

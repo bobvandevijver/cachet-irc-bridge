@@ -8,18 +8,15 @@ use App\Model\Schedule;
 use BobV\IrkerUtils\Colorize;
 use BobV\IrkerUtils\Connector;
 
-class IrcConnector
+readonly class IrcConnector
 {
-  /** @var Connector|null */
-  private $connector;
+  private ?Connector $connector;
 
   public function __construct(bool $silent)
   {
-    if ($silent) {
-      return;
-    }
-
-    $this->connector = new Connector($_ENV['IRKER_SERVER'], $_ENV['IRKER_PORT']);
+    $this->connector = $silent
+        ? null
+        : new Connector($_ENV['IRKER_SERVER'], $_ENV['IRKER_PORT']);
   }
 
   public function newIncident(Incident $incident): void

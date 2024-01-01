@@ -23,7 +23,6 @@ class ScheduleParser extends AbstractSharedParser
 
       $this->db->storeSchedule($apiSchedule);
     } else {
-      /** @noinspection PhpNonStrictObjectEqualityInspection */
       if ($dbSchedule->getUpdatedAt() == $apiSchedule->getUpdatedAt()) {
         // No updates
         return;

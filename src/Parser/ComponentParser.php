@@ -3,10 +3,15 @@
 namespace App\Parser;
 
 use App\Model\Component;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class ComponentParser extends AbstractSharedParser
 {
-  private $groupNameCache = [];
+  private array $groupNameCache = [];
 
   protected function getEndpoint(): string
   {
@@ -25,7 +30,6 @@ class ComponentParser extends AbstractSharedParser
 
       $this->db->storeComponent($apiComponent);
     } else {
-      /** @noinspection PhpNonStrictObjectEqualityInspection */
       if ($dbComponent->getUpdatedAt() == $apiComponent->getUpdatedAt()
           || $dbComponent->getStatus() === $apiComponent->getStatus()) {
         // No updates
@@ -40,6 +44,13 @@ class ComponentParser extends AbstractSharedParser
     }
   }
 
+  /**
+   * @throws TransportExceptionInterface
+   * @throws ServerExceptionInterface
+   * @throws RedirectionExceptionInterface
+   * @throws DecodingExceptionInterface
+   * @throws ClientExceptionInterface
+   */
   private function getComponentGroup(Component $component): ?string
   {
     if (!$groupId = $component->getGroupId()) {
