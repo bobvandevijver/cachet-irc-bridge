@@ -4,7 +4,6 @@ namespace App\Parser;
 
 use App\DbConnector;
 use App\IrcConnector;
-use App\Model\AbstractSharedModel;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
