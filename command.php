@@ -7,6 +7,7 @@ use App\IrcConnector;
 use App\Parser\ComponentParser;
 use App\Parser\IncidentParser;
 use App\Parser\ScheduleParser;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -39,22 +40,22 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
       ]);
 
       // Retrieve components
-      if (0 !== $result = (new ComponentParser($console, $db, $irc, $httpClient, $accessor))()) {
+      if (Command::SUCCESS !== $result = (new ComponentParser($console, $db, $irc, $httpClient, $accessor))()) {
         return $result;
       }
 
       // Retrieve incidents
-      if (0 !== $result = (new IncidentParser($console, $db, $irc, $httpClient, $accessor))()) {
+      if (Command::SUCCESS !== $result = (new IncidentParser($console, $db, $irc, $httpClient, $accessor))()) {
         return $result;
       }
 
       // Retrieve schedules
-      if (0 !== $result = (new ScheduleParser($console, $db, $irc, $httpClient, $accessor))()) {
+      if (Command::SUCCESS !== $result = (new ScheduleParser($console, $db, $irc, $httpClient, $accessor))()) {
         return $result;
       }
 
       $console->success('Done!');
 
-      return 0;
+      return Command::SUCCESS;
     })
     ->run();

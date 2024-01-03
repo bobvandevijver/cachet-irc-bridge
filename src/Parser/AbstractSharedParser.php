@@ -4,6 +4,7 @@ namespace App\Parser;
 
 use App\DbConnector;
 use App\IrcConnector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -42,14 +43,14 @@ abstract class AbstractSharedParser
           json_encode($response->getInfo()),
       ]);
 
-      return 1;
+      return Command::FAILURE;
     }
 
     foreach ($this->accessor->getValue($response->toArray(), '[data]') as $apiData) {
       $this->parseObject($apiData);
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   protected abstract function getEndpoint(): string;
